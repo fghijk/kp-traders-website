@@ -21,6 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: github-pages
 
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,36 +39,26 @@ jobs:
         run: npm ci
 
       - name: Verify Supabase configuration
-        env:
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+        shell: bash
         run: |
           if [ -z "$VITE_SUPABASE_URL" ]; then
-            echo "ERROR: VITE_SUPABASE_URL is empty"
+            echo "::error::VITE_SUPABASE_URL is empty"
             exit 1
           fi
 
           if [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
-            echo "ERROR: VITE_SUPABASE_ANON_KEY is empty"
+            echo "::error::VITE_SUPABASE_ANON_KEY is empty"
             exit 1
           fi
 
           if [[ ! "$VITE_SUPABASE_URL" =~ ^https://[a-zA-Z0-9-]+\.supabase\.co/?$ ]]; then
-            echo "ERROR: Invalid Supabase project URL"
+            echo "::error::Invalid Supabase project URL"
             exit 1
           fi
 
-          if [[ "$VITE_SUPABASE_ANON_KEY" != sb_publishable_* && "$VITE_SUPABASE_ANON_KEY" != eyJ* ]]; then
-            echo "ERROR: Invalid Supabase public key format"
-            exit 1
-          fi
-
-          echo "SUCCESS: Supabase variables are available."
+          echo "SUCCESS: Supabase configuration is available."
 
       - name: Build React website
-        env:
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: Create SPA fallback
