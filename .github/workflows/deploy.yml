@@ -19,7 +19,7 @@ jobs:
   build:
     name: Build Website
     runs-on: ubuntu-latest
-    environment: github-pages
+    # environment: github-pages
 
     env:
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
